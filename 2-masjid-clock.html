@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RTJ Masjid Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Doto:wght@800&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<script>
+const T={
+light:{bg:'#EFEDE8',surface:'#FAF9F6',raised:'#F3F1EC',line:'#DAD6CD',line2:'#C4BFB3',text:'#161513',text2:'#58544C',text3:'#69645B',panel:'#141311',panelLine:'#2A2825',panelText:'#BDB6A9',led:'#FFB23E',ledDim:'#3A2A12',accent:'#8F5300',primary:'#161513',onPrimary:'#F6F4EF',go:'#1C6E3F',goLed:'#5FD68C',stop:'#B3302A',stopLed:'#FF5D4A',excused:'#4F6170',frame:'#1C1B19'},
+dark:{bg:'#111110',surface:'#1A1917',raised:'#22211E',line:'#2E2C29',line2:'#3D3A36',text:'#EFEBE3',text2:'#A29C91',text3:'#878177',panel:'#0B0B0A',panelLine:'#262421',panelText:'#A29C91',led:'#FFB23E',ledDim:'#33250F',accent:'#FFB23E',primary:'#EFEBE3',onPrimary:'#121110',go:'#62D68E',goLed:'#62D68E',stop:'#FF6A55',stopLed:'#FF5D4A',excused:'#97A8B6',frame:'#2B2926'}};
+const N={bg:['Wall','Screen ground'],surface:['Card','Rows, inputs'],raised:['Raised','Pressed, selected'],line:['Rule','1px borders'],text:['Text','Primary text'],text2:['Text 2','Secondary'],text3:['Text 3','Meta, captions'],panel:['LED board','Countdown & status boards (always dark)'],led:['Amber LED','Time & "live" only'],accent:['Amber ink','Amber as text on light'],primary:['Bone','Primary action fill'],go:['Green LED','On time'],stop:['Red LED','Late, absent, points'],excused:['Steel','Excused']};
+(function(){var s='';for(var m in T){s+=(m=='light'?':root':':root[data-theme=dark]')+'{';for(var k in T[m])s+='--'+k+':'+T[m][k]+';';s+='}'}var e=document.createElement('style');e.textContent=s;document.head.appendChild(e);var t;try{t=localStorage.getItem('rtj-theme')}catch(x){}if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--sans:'Archivo',system-ui,sans-serif;--led-f:'Doto',monospace;--ar:'Noto Naskh Arabic',serif;--sw:1.75}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--text);font:400 15px/1.45 var(--sans);font-stretch:100%;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:var(--sw);stroke-linecap:square;stroke-linejoin:miter;flex:none}
+.cap-l{font:700 11px/1.2 var(--sans);font-stretch:75%;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.ar{font-family:var(--ar);direction:rtl}
+
+/* docs chrome */
+.topnav{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:24px;height:52px;padding:0 max(16px,calc((100vw - 1280px)/2));background:var(--bg);border-bottom:1px solid var(--line);font:600 13px/1 var(--sans);font-stretch:85%}
+.topnav a{color:var(--text3);text-decoration:none;text-transform:uppercase;letter-spacing:.04em}
+.topnav a[aria-current]{color:var(--text)}
+.topnav .links{display:flex;gap:20px}
+.topnav .sp{flex:1}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:2px}
+.seg button{padding:7px 12px;border-radius:4px;font:700 11px/1 var(--sans);font-stretch:75%;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.seg button[aria-pressed=true],.seg button.is-on{background:var(--primary);color:var(--onPrimary)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+.intro{display:grid;grid-template-columns:1.2fr 1fr;border-bottom:1px solid var(--line)}
+.intro>div{padding:56px 40px 48px 0}
+.intro>dl{border-left:1px solid var(--line)}
+.intro h1{font:800 clamp(64px,10vw,128px)/.86 var(--sans);font-stretch:62%;text-transform:uppercase;letter-spacing:-.01em;margin:14px 0 22px}
+.intro h1 span{color:var(--accent)}
+.lede{font-size:18px;line-height:1.5;color:var(--text2);max-width:42ch}
+.facts div{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:16px 0 16px 24px;border-bottom:1px solid var(--line)}
+.facts div:last-child{border-bottom:0}
+.facts dt{padding-top:2px}
+.facts dd{font-size:14.5px;line-height:1.5;color:var(--text)}
+.ledstrip{display:flex;gap:12px;align-items:center;margin-top:28px;padding:14px 18px;background:var(--panel);border-radius:8px;width:max-content;max-width:100%}
+.ledstrip b{font:800 34px/1 var(--led-f);color:var(--led);text-shadow:0 0 12px rgba(255,178,62,.35)}
+.ledstrip span{font:700 10px/1.3 var(--sans);font-stretch:75%;letter-spacing:.1em;color:var(--panelText);text-transform:uppercase}
+section.block{padding:56px 0;border-bottom:1px solid var(--line)}
+.sh{display:grid;grid-template-columns:120px 1fr;gap:24px;margin-bottom:36px;align-items:end}
+.sh .n{font:800 44px/1 var(--led-f);color:var(--accent)}
+.sh h2{font:800 40px/1 var(--sans);font-stretch:62%;text-transform:uppercase}
+.sh p{color:var(--text2);margin-top:6px;max-width:64ch}
+@media (max-width:860px){.intro{grid-template-columns:1fr}.intro>div{padding:40px 0 32px}.intro>dl{border-left:0;border-top:1px solid var(--line)}.facts div{grid-template-columns:1fr;gap:4px;padding-left:0}.sh{grid-template-columns:1fr;gap:8px}.topnav .links{display:none}}
+
+/* phones */
+.phones{display:flex;flex-wrap:wrap;gap:48px 32px}
+.pw{width:min(375px,100%)}
+.capn{margin-top:14px;display:flex;gap:10px;align-items:center;font-size:13.5px;color:var(--text2)}
+.capn b{font:700 11px/1 var(--sans);font-stretch:75%;letter-spacing:.08em;padding:4px 6px;border:1px solid var(--line2);border-radius:3px;color:var(--text)}
+.phone{height:780px;border-radius:54px;padding:10px;background:var(--frame);box-shadow:0 0 0 1px rgba(255,255,255,.05) inset,0 30px 60px -30px rgba(0,0,0,.6)}
+.screen{position:relative;height:100%;border-radius:44px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.status{height:50px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 36px;font:600 15px/1 -apple-system,system-ui,sans-serif;color:var(--text)}
+.status .sig{display:flex;gap:5px;align-items:center}
+.status .sig i{display:block;width:17px;height:10px;border:1.5px solid currentColor;border-radius:3px;position:relative}
+.status .sig i::after{content:"";position:absolute;inset:1.5px 4px 1.5px 1.5px;background:currentColor;border-radius:1px}
+.status .sig s{display:block;width:16px;height:10px;background:currentColor;clip-path:polygon(0 70%,20% 70%,20% 100%,0 100%,0 70%,27% 100%,27% 48%,47% 48%,47% 100%,53% 100%,53% 24%,73% 24%,73% 100%,80% 100%,80% 0,100% 0,100% 100%,0 100%)}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:32px;border-radius:20px;background:#050505;z-index:3}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 16px 24px}
+.scroll::-webkit-scrollbar{display:none}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--text);z-index:4}
+
+.tabs{flex:none;display:grid;grid-template-columns:repeat(5,1fr);padding:0 6px 26px;border-top:1px solid var(--line);background:var(--bg)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:11px;color:var(--text3);font:700 10px/1 var(--sans);font-stretch:75%;letter-spacing:.06em;text-transform:uppercase;position:relative}
+.tab .ic{width:22px;height:22px}
+.tab.on{color:var(--text)}
+.tab.on::before{content:"";position:absolute;top:-1px;left:22%;right:22%;height:2px;background:var(--accent)}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px}
+.top h1{font:800 30px/1 var(--sans);font-stretch:62%;text-transform:uppercase;letter-spacing:.005em}
+.wing{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px;border:1px solid var(--line2);border-radius:4px;font:700 11px/1 var(--sans);font-stretch:75%;letter-spacing:.08em;text-transform:uppercase}
+.wing i{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.av{width:34px;height:34px;border-radius:6px;background:var(--raised);border:1px solid var(--line);display:grid;place-items:center;font:700 12px/1 var(--sans);font-stretch:75%;letter-spacing:.04em}
+
+/* LED board */
+.board{position:relative;background:var(--panel);border-radius:10px;padding:14px 14px 12px;color:var(--panelText);overflow:hidden;border:1px solid var(--panelLine)}
+.board::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1.3px) 0 0/5px 5px;pointer-events:none}
+.board>*{position:relative}
+.board .hdr{display:flex;justify-content:space-between;font:700 10.5px/1 var(--sans);font-stretch:75%;letter-spacing:.1em;text-transform:uppercase}
+.board .hdr b{color:var(--led)}
+.digits{display:flex;align-items:baseline;gap:2px;margin:16px 0 6px;font:800 50px/1 var(--led-f);color:var(--led);text-shadow:0 0 14px rgba(255,178,62,.4);white-space:nowrap}
+.digits small{font-size:26px;margin:0 8px 0 1px}
+.digits .col{opacity:.55;margin:0 1px}
+.dunit{display:grid;grid-template-columns:62px 1fr;font:700 9.5px/1 var(--sans);font-stretch:75%;letter-spacing:.12em;text-transform:uppercase;color:#6E6961;padding-bottom:12px;border-bottom:1px dashed #34312C}
+.dunit span:last-child{padding-left:10px;word-spacing:30px}
+.dg{display:flex;align-items:flex-start;justify-content:space-between;margin:16px 0 0;padding-bottom:12px;border-bottom:1px dashed #34312C}
+.dg div{display:flex;flex-direction:column;gap:6px}
+.dg b{font:800 46px/1 var(--led-f);color:var(--led);text-shadow:0 0 14px rgba(255,178,62,.4);letter-spacing:-.02em}
+.dg div:first-child b{min-width:30px}
+.dg span{font:700 9.5px/1 var(--sans);font-stretch:75%;letter-spacing:.12em;text-transform:uppercase;color:#6E6961}
+.dg i{width:5px;height:20px;margin-top:12px;background:radial-gradient(circle,var(--led) 2.2px,transparent 2.6px) 0 0/5px 10px;opacity:.6;flex:none}
+.board .foot{display:flex;align-items:center;gap:8px;margin-top:11px;font:600 12px/1.2 var(--sans);font-stretch:85%;letter-spacing:.02em;color:#D9D3C7}
+.blink{width:7px;height:7px;border-radius:50%;background:var(--led);box-shadow:0 0 8px var(--led);animation:bl 1.2s steps(2) infinite}
+@keyframes bl{50%{opacity:.15}}
+@media (prefers-reduced-motion:reduce){.blink{animation:none}}
+.board .foot em{font-style:normal;color:var(--led);margin-left:auto;font-weight:700;font-stretch:75%;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+
+.specs{display:grid;grid-template-columns:1fr 1fr;margin-top:10px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.specs div{padding:10px 12px;border-bottom:1px solid var(--line)}
+.specs div:nth-child(odd){border-right:1px solid var(--line)}
+.specs div:nth-last-child(-n+2){border-bottom:0}
+.specs b{display:block;font:600 15px/1.25 var(--sans);margin-top:5px}
+.specs small{display:block;font:500 12px/1.3 var(--sans);color:var(--text2);margin-top:2px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.stat{padding:10px 10px 9px;border:1px solid var(--line);border-radius:10px}
+.stat b{display:block;font:800 34px/1 var(--sans);font-stretch:62%;margin-top:8px}
+.stat b sup{font-size:16px;vertical-align:top;margin-left:1px}
+.stat .ic{width:14px;height:14px;vertical-align:-2px;color:var(--accent)}
+.stat.pts b{color:var(--stop)}
+
+.qh{display:flex;justify-content:space-between;align-items:center;margin:20px 0 8px}
+.queue{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.q{display:flex;align-items:center;gap:10px;padding:11px 10px 11px 12px;background:var(--surface)}
+.q+.q{border-top:1px solid var(--line)}
+.q .k{width:28px;font:800 22px/1 var(--sans);font-stretch:62%;text-align:center;flex:none}
+.q .k .ic{width:18px;height:18px;color:var(--text2)}
+.q .t{flex:1;min-width:0}
+.q .t b{display:block;font:600 14px/1.25 var(--sans)}
+.q .t small{display:block;font:500 12px/1.3 var(--sans);color:var(--text3)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:44px;padding:0 18px;border-radius:8px;font:700 13px/1 var(--sans);font-stretch:80%;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.btn .ic{width:16px;height:16px}
+.btn.pri{background:var(--primary);color:var(--onPrimary)}
+.btn.out{box-shadow:inset 0 0 0 1px var(--line2);color:var(--text)}
+.btn.ghost{color:var(--text2);padding:0 8px}
+.btn.del{box-shadow:inset 0 0 0 1px var(--stop);color:var(--stop)}
+.btn.dis{background:var(--raised);color:var(--text3);cursor:not-allowed}
+.btn.xs{height:30px;padding:0 10px;font-size:11px;border-radius:6px}
+.btn.sm{height:36px;padding:0 12px;font-size:12px}
+.btn.lg{height:54px;width:100%;font-size:14px;border-radius:10px}
+
+/* status chips: LED dot + label */
+.st{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:4px;border:1px solid var(--line);background:var(--surface);font:700 10.5px/1 var(--sans);font-stretch:75%;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.st::before{content:"";width:6px;height:6px;border-radius:1px;background:currentColor}
+.st.go{color:var(--go)}.st.stop{color:var(--stop)}.st.wait{color:var(--accent)}.st.exc{color:var(--excused)}.st.nr{color:var(--text3)}.st.nr::before{background:transparent;box-shadow:inset 0 0 0 1px currentColor}
+.st.stop.solid{background:var(--stop);color:var(--surface);border-color:var(--stop)}
+.st.stop.solid::before{background:var(--surface)}
+.st b{font-weight:800;margin-left:2px}
+
+/* check-in */
+.res{background:var(--panel);border-radius:12px;padding:16px;position:relative;overflow:hidden;color:var(--panelText);border:1px solid var(--panelLine)}
+.res::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1.3px) 0 0/5px 5px}
+.res>*{position:relative}
+.res .big{display:flex;justify-content:space-between;align-items:flex-end;margin:12px 0 14px}
+.res .big b{font:800 64px/.9 var(--led-f);color:var(--stopLed);text-shadow:0 0 16px rgba(255,93,74,.45)}
+.res .big span{font:800 40px/.9 var(--led-f);color:var(--stopLed);text-shadow:0 0 16px rgba(255,93,74,.45)}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px dashed #34312C;padding-top:10px}
+.readout div{font:700 9.5px/1 var(--sans);font-stretch:75%;letter-spacing:.1em;text-transform:uppercase;color:#6E6961}
+.readout b{display:block;font:600 15px/1 var(--sans);color:#E9E4DA;letter-spacing:0;margin-top:6px}
+.readout b.a{color:var(--led)}
+.fld{margin-top:14px}
+.togrow{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-weight:600;font-size:14.5px}
+.tog{width:46px;height:28px;border-radius:6px;background:var(--line2);position:relative;cursor:pointer;flex:none}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:4px;background:var(--surface);transition:transform .1s}
+.tog.on{background:var(--go)}
+.tog.on::after{transform:translateX(18px)}
+.ta{margin-top:8px;padding:12px;border:1px solid var(--line2);border-radius:10px;background:var(--surface);font-size:14.5px;line-height:1.45;min-height:76px}
+.hint{display:flex;gap:6px;align-items:center;margin-top:7px;font:500 12px/1.3 var(--sans);color:var(--text3)}
+.hint .ic{width:13px;height:13px}
+.oath{margin:16px 0 12px;padding:12px;border-radius:10px;background:var(--raised);font-size:14px;line-height:1.45;color:var(--text2)}
+.oath b{font:600 18px/1.4 var(--ar);color:var(--text);display:block}
+
+/* approvals */
+.filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
+.filters button{height:30px;padding:0 10px;border-radius:6px;border:1px solid var(--line);font:700 11px/1 var(--sans);font-stretch:75%;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);white-space:nowrap;display:flex;gap:6px;align-items:center}
+.filters button i{font-style:normal;color:var(--accent)}
+.filters button.is-on{background:var(--primary);color:var(--onPrimary);border-color:var(--primary)}
+.ap{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:10px;overflow:hidden}
+.ap-h{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);font:700 10.5px/1 var(--sans);font-stretch:75%;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.ap-h .ty{color:var(--text);padding:3px 5px;background:var(--raised);border-radius:3px}
+.ap-h .ago{margin-left:auto}
+.ap-b{padding:11px 12px}
+.ap-b h4{font:700 16px/1.25 var(--sans);display:flex;align-items:center;gap:6px}
+.ap-b h4 .ic{width:15px;height:15px;color:var(--accent)}
+.ap-b p{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.4}
+.ap-b blockquote{font-size:14px;line-height:1.45;margin-top:8px;padding:8px 10px;background:var(--raised);border-radius:6px}
+.tc{margin-top:10px;display:grid;gap:5px}
+.tc div{display:grid;grid-template-columns:96px 1fr 18px;gap:8px;align-items:center;font:600 12px/1 var(--sans)}
+.tc .bar{height:8px;border-radius:2px;background:var(--raised);display:flex;gap:2px;padding:0}
+.tc .bar i{width:20%;background:var(--text2);border-radius:2px}
+.tc b{text-align:right;font-weight:800}
+.ap-f{display:flex;gap:8px;padding:0 12px 12px}
+.ap-f .btn{flex:1}
+
+/* leaderboard */
+.lb-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.lb-sum .stat b{font-size:40px}
+.lbr{display:grid;grid-template-columns:26px 1fr 40px 40px;gap:8px;align-items:center;padding:10px 4px 10px 8px;border-bottom:1px solid var(--line)}
+.lbr .rk{font:800 22px/1 var(--sans);font-stretch:62%;color:var(--text3)}
+.lbr .nm{min-width:0}
+.lbr .nm b{display:block;font:600 14.5px/1.2 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbr .att{display:flex;align-items:center;gap:6px;margin-top:5px;font:600 11px/1 var(--sans);color:var(--text2)}
+.lbr .att i{display:block;height:4px;flex:1;max-width:120px;background:var(--line);border-radius:1px;overflow:hidden}
+.lbr .att i::after{content:"";display:block;height:100%;width:var(--w);background:var(--go)}
+.lbr .sk{font:700 13px/1 var(--sans);text-align:right;color:var(--text2)}
+.lbr .pt{font:800 22px/1 var(--sans);font-stretch:62%;text-align:right;color:var(--stop)}
+.lbr .pt.z{color:var(--text3)}
+.lbr.me{background:var(--raised);box-shadow:inset 3px 0 0 var(--accent);border-radius:4px}
+.lbh{display:grid;grid-template-columns:26px 1fr 40px 40px;gap:8px;padding:0 4px 6px 8px;border-bottom:1px solid var(--line2)}
+.lbh span:nth-child(n+3){text-align:right}
+
+/* note */
+.ntt{font:800 26px/1.05 var(--sans);font-stretch:70%;text-transform:uppercase;margin:4px 0 10px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.nt p{font-size:15px;line-height:1.55;margin-bottom:10px}
+.nt ul{margin:0 0 12px 18px;font-size:15px;line-height:1.5}
+.nt li::marker{color:var(--accent)}
+.vb{border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin:4px 0 14px;background:var(--surface)}
+.vb-h{display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--raised)}
+.vb .ar{font-size:24px;line-height:1.9;padding:12px 14px 4px;text-align:right}
+.vb .en{padding:0 14px 12px;font-size:14px;line-height:1.5;color:var(--text2)}
+.ins{display:flex;gap:6px}
+.ins span{height:32px;padding:0 10px;border:1px dashed var(--line2);border-radius:6px;display:flex;align-items:center;font:700 11px/1 var(--sans);font-stretch:75%;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
+
+/* foundations */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:860px){.fgrid{grid-template-columns:1fr}}
+.palcard{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.palcard>header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.palcard h3{font:800 22px/1 var(--sans);font-stretch:62%;text-transform:uppercase}
+.palcard [data-swatches]{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.sw{padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;gap:3px}
+.sw-chip{height:40px;border-radius:6px;margin-bottom:6px;box-shadow:inset 0 0 0 1px rgba(127,120,110,.3)}
+.sw-name{font:700 13px/1.2 var(--sans)}
+.sw-hex{font:600 12px/1 var(--sans);color:var(--text2)}
+.sw-role{font:500 11.5px/1.3 var(--sans);color:var(--text3)}
+.palcard.dk{background:#111110;color:#EFEBE3;border-color:#2E2C29}
+.palcard.dk>header,.palcard.dk .sw{border-color:#2E2C29}.palcard.dk .sw-hex{color:#A29C91}.palcard.dk .sw-role,.palcard.dk .cap-l{color:#878177}
+.palcard.lt{background:#EFEDE8;color:#161513;border-color:#DAD6CD}
+.palcard.lt>header,.palcard.lt .sw{border-color:#DAD6CD}.palcard.lt .sw-hex{color:#58544C}.palcard.lt .sw-role,.palcard.lt .cap-l{color:#69645B}
+.types{margin-top:40px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ty{display:grid;grid-template-columns:200px 1fr;gap:20px;padding:16px;border-bottom:1px solid var(--line);align-items:center}
+.ty:last-child{border-bottom:0}
+.ty .k{font-size:12.5px;color:var(--text3);line-height:1.45}
+.ty .k b{display:block;color:var(--text);font-weight:700;font-stretch:75%;letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+@media (max-width:640px){.ty{grid-template-columns:1fr;gap:8px}}
+.prin{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:40px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.prin>div{padding:20px;border-right:1px solid var(--line)}
+.prin>div:last-child{border-right:0}
+.prin h4{font:800 20px/1.1 var(--sans);font-stretch:70%;text-transform:uppercase;margin:12px 0 8px}
+.prin p{font-size:14px;line-height:1.55;color:var(--text2)}
+@media (max-width:860px){.prin{grid-template-columns:1fr}.prin>div{border-right:0;border-bottom:1px solid var(--line)}}
+
+/* component sheet */
+.sheetgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.spec{padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.spec>.cap-l{display:block;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.col{display:flex;flex-direction:column;gap:10px}
+.inp label{display:block;margin-bottom:6px}
+.inp .f{height:46px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--line2);border-radius:8px;background:var(--bg);font:600 15px/1 var(--sans)}
+.inp .f small{color:var(--text3);font-weight:500}
+.inp.err .f{border-color:var(--stop);box-shadow:0 0 0 3px color-mix(in srgb,var(--stop) 18%,transparent)}
+.inp .msg{font:500 12px/1.4 var(--sans);color:var(--stop);margin-top:6px}
+.ord .o{display:grid;grid-template-columns:18px 40px 1fr 70px;gap:8px;align-items:center;height:48px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-bottom:6px;font:600 14px/1 var(--sans)}
+.ord .o .ic{width:16px;color:var(--text3)}
+.ord .wk{font:700 11px/1 var(--sans);font-stretch:75%;letter-spacing:.06em;color:var(--text3)}
+.ord .tcn{display:flex;gap:3px;justify-content:flex-end;align-items:center;font:700 11px/1 var(--sans);color:var(--text2)}
+.ord .tcn i{width:8px;height:12px;border-radius:1px;background:var(--line2)}
+.ord .tcn i.f{background:var(--text)}
+.ord .o.lift{border-color:var(--accent);box-shadow:0 8px 20px -10px rgba(0,0,0,.5);transform:translateX(6px)}
+.ban{display:flex;gap:12px;padding:12px;border-radius:10px;background:var(--panel);color:#E9E4DA;border:1px solid var(--panelLine)}
+.ban .ic{color:var(--led);margin-top:2px}
+.ban b{display:block;font:700 14.5px/1.3 var(--sans)}
+.ban small{display:block;font-size:12.5px;color:#A29C91;margin:3px 0 10px}
+.ban .btn{background:var(--led);color:#1A1206}
+.eid{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--bg)}
+.eid .digits{font-size:30px;margin:10px 0 4px;color:var(--text3);text-shadow:none}
+.eid b{font:800 22px/1 var(--sans);font-stretch:62%;text-transform:uppercase;display:block;margin-top:8px}
+.eid p{font-size:13px;color:var(--text2);margin-top:4px}
+.sug{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.sug:last-child{border-bottom:0}
+.vote{height:52px;border-radius:8px;border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:800 18px/1 var(--sans);font-stretch:62%}
+.vote .ic{width:14px;height:14px}
+.vote.on{background:var(--primary);color:var(--onPrimary);border-color:var(--primary)}
+.sug h5{font:600 14.5px/1.35 var(--sans)}
+.sug small{font-size:12px;color:var(--text3)}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:860px){.dos{grid-template-columns:1fr}}
+.dos>div{border:1px solid var(--line);border-radius:12px;padding:20px}
+.dos h3{font:800 26px/1 var(--sans);font-stretch:62%;text-transform:uppercase;display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.dos h3 i{width:10px;height:10px;border-radius:2px;background:var(--go)}
+.dos .dont h3 i{background:var(--stop)}
+.dos li{list-style:none;padding:10px 0;border-top:1px solid var(--line);font-size:14.5px;line-height:1.5}
+footer{padding:36px 0 64px;font-size:13px;color:var(--text3)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10 12 4l8 6v10h-5v-6H9v6H4z"/></symbol>
+ <symbol id="i-cal" viewBox="0 0 24 24"><path d="M4 5h16v15H4zM4 9.5h16M8.5 3v4M15.5 3v4"/></symbol>
+ <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M4 12h16"/></symbol>
+ <symbol id="i-note" viewBox="0 0 24 24"><path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M14.5 3.5V7.5h4M9 12h6M9 15.5h6"/></symbol>
+ <symbol id="i-more" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></symbol>
+ <symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2M14 18h2M18 18h2v2"/></symbol>
+ <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></symbol>
+ <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13.5 6.5 5h11l2.5 8.5V19H4z"/><path d="M4 13.5h4.5l1 2h5l1-2H20"/></symbol>
+ <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4 4 7l3 3M4 7h13M17 14l3 3-3 3M20 17H7"/></symbol>
+ <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+ <symbol id="i-drag" viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h14"/></symbol>
+ <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V6M6 12l6-6 6 6"/></symbol>
+ <symbol id="i-lock" viewBox="0 0 24 24"><path d="M5 10.5h14V20H5zM8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+ <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 20c3.3 0 5.5-2.2 5.5-5.2 0-3.6-3-5.3-3.8-8.8-1.9 1.3-2.7 3.2-2.7 4.8-1-.6-1.6-1.6-1.8-2.6C7.4 9.8 6.5 11.7 6.5 14.8 6.5 17.8 8.7 20 12 20z"/></symbol>
+ <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+ <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+ <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 21 20H3zM12 10v4M12 17v.5"/></symbol>
+</svg>
+
+<nav class="topnav">
+ <a href="index.html">RTJ / Systems</a>
+ <span class="links"><a href="1-mushaf.html">01 Mushaf</a><a href="2-masjid-clock.html" aria-current="page">02 Masjid Clock</a><a href="3-limestone.html">03 Limestone</a><a href="4-sadu.html">04 Sadu</a></span>
+ <span class="sp"></span>
+ <span class="seg" role="group" aria-label="Theme"><button data-set="light">Light</button><button data-set="dark">Dark</button></span>
+</nav>
+
+<div class="wrap">
+<header class="intro">
+ <div>
+  <p class="cap-l">Design system 02 / 04</p>
+  <h1>Masjid<br><span>Clock</span></h1>
+  <p class="lede">Every masjid in Doha has one: the LED board on the wall showing salah times in amber digits. RTJ is about showing up on time, so this system turns that board into the app's main object. Time gets its own light. Everything else is quiet, dense and exact.</p>
+  <div class="ledstrip"><b class="cd-dn">4</b><span>days<br>to week 84</span><b><span class="cd-h">15</span>:<span class="cd-m">32</span>:<span class="cd-s">07</span></b></div>
+ </div>
+ <dl class="facts">
+  <div><dt class="cap-l">Feels</dt><dd>Disciplined and accountable. A well-run team with a scoreboard on the wall.</dd></div>
+  <div><dt class="cap-l">Islamic identity</dt><dd><b>Minimal.</b> No ornament. The identity comes from one real object every member sees each Friday, and from the Arabic.</dd></div>
+  <div><dt class="cap-l">Drawn from</dt><dd>Mosque prayer-time LED boards; Strava and Whoop stat cards; Linear's borders-not-shadows density.</dd></div>
+  <div><dt class="cap-l">Gives up</dt><dd>Warmth and gentleness. Points and lateness are loud here, which motivates some people and stresses others.</dd></div>
+ </dl>
+</header>
+
+<section class="block">
+ <div class="sh"><span class="n">01</span><div><h2>Screens</h2><p>Dark is the home mode. In light mode the LED boards stay dark, because they're physical objects, like the board on the wall.</p></div></div>
+ <div class="phones">
+
+  <!-- HOME -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll">
+     <div class="top"><span class="wing"><i></i>Rijal · Wk 84</span><span class="av">IK</span></div>
+     <div class="board">
+      <div class="hdr"><span>Next session</span><b>Fri 16 Oct</b></div>
+      <div class="dg"><div><b class="cd-dn">4</b><span>Days</span></div><i></i><div><b class="cd-h">15</b><span>Hrs</span></div><i></i><div><b class="cd-m">32</b><span>Min</span></div><i></i><div><b class="cd-s">07</b><span>Sec</span></div></div>
+      <div class="foot"><span class="blink"></span>Start 06:15 <em>Time not confirmed</em></div>
+     </div>
+     <div class="specs">
+      <div><span class="cap-l">Presenter</span><b>Bilal Siddiqui</b><small>Turn 1 this cycle</small></div>
+      <div><span class="cap-l">Portion</span><b>Baqarah 148–157</b><small>↻ Continuing from 148</small></div>
+      <div><span class="cap-l">Location</span><b>Main Hall</b><small>Al Waab</small></div>
+      <div><span class="cap-l">Your next turn</span><b>Week 85</b><small>23 Oct · range due Wed</small></div>
+     </div>
+     <div class="stats">
+      <div class="stat"><span class="cap-l"><svg class="ic"><use href="#i-flame"/></svg> Streak</span><b>12</b></div>
+      <div class="stat"><span class="cap-l">Attend.</span><b>94<sup>%</sup></b></div>
+      <div class="stat pts"><span class="cap-l">Points</span><b>5</b></div>
+     </div>
+     <div class="qh"><span class="cap-l">Staff queue</span><span class="cap-l" style="color:var(--accent)">3 open</span></div>
+     <div class="queue">
+      <div class="q"><span class="k">3</span><span class="t"><b>Approvals</b><small>Swap · late reason · excuse</small></span><button class="btn out xs">Open</button></div>
+      <div class="q"><span class="k"><svg class="ic"><use href="#i-clock"/></svg></span><span class="t"><b>Start time</b><small>Unconfirmed · using 06:15</small></span><button class="btn out xs">Confirm</button></div>
+      <div class="q"><span class="k"><svg class="ic"><use href="#i-qr"/></svg></span><span class="t"><b>Week 84 QR</b><small>Not generated</small></span><button class="btn pri xs">Generate</button></div>
+     </div>
+    </div>
+    <nav class="tabs"><span class="tab on"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab"><svg class="ic"><use href="#i-scan"/></svg>Attend</span><span class="tab"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>02</b>Home: countdown board, stats, staff queue</p>
+  </div>
+
+  <!-- CHECK-IN -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>6:38</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll">
+     <div class="top"><button class="btn ghost" style="padding:0"><svg class="ic"><use href="#i-x"/></svg></button><span class="cap-l">Check-in · Week 84</span><span style="width:20px"></span></div>
+     <div class="res">
+      <div class="board" style="padding:0;background:none;border:0"><div class="hdr"><span>Status</span><b style="color:var(--stopLed)">Tier 2</b></div></div>
+      <div class="big"><b>LATE</b><span>+2</span></div>
+      <div class="readout"><div>Scanned<b>06:38:12</b></div><div>Grace end<b>06:30:00</b></div><div>Over<b class="a">+08:12</b></div></div>
+     </div>
+     <div class="fld togrow"><span>I have a valid reason</span><span class="tog on" data-tog></span></div>
+     <div class="ta">Accident on Al Rayyan Road, traffic held for twenty minutes.</div>
+     <p class="hint"><svg class="ic"><use href="#i-lock"/></svg>Private: only you and wing staff see this. Points go to 0 if approved.</p>
+     <div class="oath"><b>بسم الله</b>I confirm the above information is accurate.</div>
+     <button class="btn pri lg"><svg class="ic"><use href="#i-check"/></svg>Confirm check-in</button>
+    </div>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>04</b>QR check-in result, late with reason</p>
+  </div>
+
+  <!-- APPROVALS -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll">
+     <div class="top"><h1>Approvals</h1><span class="wing"><i></i>Rijal</span></div>
+     <div class="filters" data-group><button data-opt class="is-on">All <i>3</i></button><button data-opt>Swaps <i>1</i></button><button data-opt>Late <i>1</i></button><button data-opt>Excuse <i>1</i></button><button data-opt>Edits</button></div>
+     <div class="ap">
+      <div class="ap-h"><span class="ty">Swap</span>Wk 86 · 30 Oct<span class="ago">2h</span></div>
+      <div class="ap-b"><h4>Bilal Siddiqui <svg class="ic"><use href="#i-swap"/></svg> Omar Farooq</h4><p>Omar accepted. Bilal takes Omar's next turn (Wk 91).</p>
+       <div class="tc"><span class="cap-l">Turns this cycle</span><div>Bilal Siddiqui<span class="bar"><i></i></span><b>1</b></div><div>Omar Farooq<span class="bar"><i></i></span><b>1</b></div></div>
+      </div>
+      <div class="ap-f"><button class="btn out sm"><svg class="ic"><use href="#i-x"/></svg>Reject</button><button class="btn pri sm"><svg class="ic"><use href="#i-check"/></svg>Approve</button></div>
+     </div>
+     <div class="ap">
+      <div class="ap-h"><span class="ty">Late reason</span>Wk 83<span class="st stop" style="margin-left:auto">T2 <b>+2</b></span></div>
+      <div class="ap-b"><h4>Hamza Ali</h4><blockquote>My son had a fever, waited for the clinic to open.</blockquote></div>
+      <div class="ap-f"><button class="btn out sm"><svg class="ic"><use href="#i-x"/></svg>Reject</button><button class="btn pri sm"><svg class="ic"><use href="#i-check"/></svg>Approve</button></div>
+     </div>
+     <div class="ap">
+      <div class="ap-h"><span class="ty">Excuse</span>Wk 85 · 23 Oct<span class="ago">1d</span></div>
+      <div class="ap-b"><h4>Zaid Hussain</h4><blockquote>Travelling for Umrah, back on the 25th.</blockquote></div>
+      <div class="ap-f"><button class="btn out sm"><svg class="ic"><use href="#i-x"/></svg>Reject</button><button class="btn pri sm"><svg class="ic"><use href="#i-check"/></svg>Approve</button></div>
+     </div>
+    </div>
+    <nav class="tabs"><span class="tab"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab"><svg class="ic"><use href="#i-scan"/></svg>Attend</span><span class="tab"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab on"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>06</b>Approvals with turns-this-cycle bars</p>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll">
+     <div class="top"><h1>Leaderboard</h1><span class="seg" data-group style="border-radius:6px"><button data-opt class="is-on">Year</button><button data-opt>Month</button></span></div>
+     <div class="lb-sum"><div class="stat"><span class="cap-l">Rijal attendance</span><b>91<sup>%</sup></b></div><div class="stat"><span class="cap-l">Sessions · 2026</span><b>36</b></div></div>
+     <div class="lbh"><span class="cap-l">#</span><span class="cap-l">Member · attendance</span><span class="cap-l">Strk</span><span class="cap-l" style="color:var(--text)">Pts ↓</span></div>
+     <div class="lbr"><span class="rk">1</span><span class="nm"><b>Hamza Ali</b><span class="att"><i style="--w:78%"></i>78%</span></span><span class="sk">2</span><span class="pt">31</span></div>
+     <div class="lbr"><span class="rk">2</span><span class="nm"><b>Tariq Mahmood</b><span class="att"><i style="--w:83%"></i>83%</span></span><span class="sk">4</span><span class="pt">24</span></div>
+     <div class="lbr"><span class="rk">3</span><span class="nm"><b>Zaid Hussain</b><span class="att"><i style="--w:89%"></i>89%</span></span><span class="sk">6</span><span class="pt">9</span></div>
+     <div class="lbr me"><span class="rk">4</span><span class="nm"><b>Ibrahim Khan · you</b><span class="att"><i style="--w:94%"></i>94%</span></span><span class="sk">12</span><span class="pt">5</span></div>
+     <div class="lbr"><span class="rk">5</span><span class="nm"><b>Omar Farooq</b><span class="att"><i style="--w:97%"></i>97%</span></span><span class="sk">18</span><span class="pt">2</span></div>
+     <div class="lbr"><span class="rk">6</span><span class="nm"><b>Bilal Siddiqui</b><span class="att"><i style="--w:100%"></i>100%</span></span><span class="sk">36</span><span class="pt z">0</span></div>
+     <div class="lbr"><span class="rk">7</span><span class="nm"><b>Yusuf Rahman</b><span class="att"><i style="--w:100%"></i>100%</span></span><span class="sk">29</span><span class="pt z">0</span></div>
+     <p class="hint" style="margin-top:12px">Excused sessions don't count. Points are for information only in v1.</p>
+    </div>
+    <nav class="tabs"><span class="tab"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab on"><svg class="ic"><use href="#i-scan"/></svg>Attend</span><span class="tab"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>04</b>Wing leaderboard, default sort = most points</p>
+  </div>
+
+  <!-- NOTE -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll nt">
+     <div class="top"><span class="cap-l">‹ Notes</span><button class="btn pri xs">Done</button></div>
+     <div class="meta"><span class="st nr">Private</span><span class="st exc">Wk 84 · Al-Baqarah</span></div>
+     <h2 class="ntt">Remembrance is answered</h2>
+     <p>Bilal opened with the change of qibla and closed on this ayah. The promise comes first, before any instruction:</p>
+     <div class="vb">
+      <div class="vb-h"><span class="cap-l" style="color:var(--text)">Al-Baqarah 2:152</span><span class="cap-l">Saheeh Intl.</span></div>
+      <p class="ar">فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ</p>
+      <p class="en">So remember Me; I will remember you. And be grateful to Me and do not deny Me.</p>
+     </div>
+     <ul><li>Dhikr is two-way, not a ritual list.</li><li>Shukr is paired with dhikr, so look for this pairing elsewhere.</li></ul>
+     <div class="ins"><span>+ Text</span><span>+ List</span><span>+ Image</span><span>+ Verse</span></div>
+    </div>
+    <nav class="tabs"><span class="tab"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab"><svg class="ic"><use href="#i-scan"/></svg>Attend</span><span class="tab on"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>09</b>Personal note with a verse block</p>
+  </div>
+ </div>
+</section>
+
+<section class="block">
+ <div class="sh"><span class="n">02</span><div><h2>Foundations</h2><p>One light source: amber LED, used only for time and "happening now". Green and red LEDs are kept strictly for attendance status.</p></div></div>
+ <div class="fgrid">
+  <div class="palcard dk"><header><h3>Dark · night wall</h3><span class="cap-l">Home mode</span></header><div data-swatches="dark"></div></div>
+  <div class="palcard lt"><header><h3>Light · marble</h3><span class="cap-l">Daylight</span></header><div data-swatches="light"></div></div>
+ </div>
+ <div class="types">
+  <div class="ty"><span class="k"><b>LED digits</b>Doto 800 · 50/1 · amber with glow. Only for time and status boards.</span><span style="font:800 50px/1 var(--led-f);color:var(--accent)">4D 15:32</span></div>
+  <div class="ty"><span class="k"><b>Display</b>Archivo 800 · width 62% · 30–40 · uppercase</span><span style="font:800 34px/1 var(--sans);font-stretch:62%;text-transform:uppercase">Leaderboard · Week 84</span></div>
+  <div class="ty"><span class="k"><b>Stat</b>Archivo 800 · width 62% · 34 · tabular</span><span style="font:800 40px/1 var(--sans);font-stretch:62%">94% · 12 · 31</span></div>
+  <div class="ty"><span class="k"><b>Body</b>Archivo 400 · 15/1.45</span><span style="font-size:15px;max-width:60ch">Omar accepted. Bilal takes Omar's next turn in week 91. Approving updates the rotation and tells the wing.</span></div>
+  <div class="ty"><span class="k"><b>Label</b>Archivo 700 · width 75% · 11 · +0.08em caps</span><span class="cap-l" style="color:var(--text)">Turns this cycle · Staff queue · Grace end</span></div>
+  <div class="ty"><span class="k"><b>Quran</b>Noto Naskh Arabic · 24/1.9 · RTL, right-aligned</span><span class="ar" style="font-size:26px;line-height:1.9;text-align:right">فَٱذْكُرُونِىٓ أَذْكُرْكُمْ</span></div>
+ </div>
+ <div class="prin">
+  <div><span class="cap-l">Shape</span><h4>Tight radius ladder</h4><p>Boards and cards 10px, buttons 8px, chips and toggles 4–6px. Square line caps on icons. No pills anywhere: pills read soft, and this system isn't soft.</p></div>
+  <div><span class="cap-l">Depth</span><h4>Borders, not shadows</h4><p>1px rules separate everything. The only "depth" is the LED board, which is darker than its surroundings, and the dragged row in the rotation list.</p></div>
+  <div><span class="cap-l">Motion</span><h4>Fast or none</h4><p>State changes at 100ms. The amber dot blinks in 1.2s steps only while something is unconfirmed or live. Countdown digits change in place, never slide or flip.</p></div>
+ </div>
+</section>
+
+<section class="block">
+ <div class="sh"><span class="n">03</span><div><h2>Components</h2><p>Every status gets an LED dot plus a word, never color alone.</p></div></div>
+ <div class="sheetgrid">
+  <div class="spec"><span class="cap-l">Buttons</span><div class="col"><div class="row"><button class="btn pri">Approve</button><button class="btn out">Reject</button><button class="btn ghost">Cancel</button></div><div class="row"><button class="btn del"><svg class="ic"><use href="#i-alert"/></svg>Force swap</button><button class="btn dis">Swap locked · &lt;5 days</button></div></div></div>
+  <div class="spec"><span class="cap-l">Attendance status · all 8</span><div class="row"><span class="st go">On time</span><span class="st stop">Late T1 <b>+1</b></span><span class="st wait">Late · reason pending</span><span class="st go">Late · excused</span><span class="st exc">Excused</span><span class="st stop solid">Unexcused <b>+20</b></span><span class="st stop solid">No-show <b>+8</b></span><span class="st nr">Not required</span></div></div>
+  <div class="spec"><span class="cap-l">Inputs</span><div class="col"><div class="inp"><label class="cap-l">Planned end ayah</label><div class="f"><small>Baqarah</small>157</div></div><div class="inp err"><label class="cap-l">Insert verse</label><div class="f">2:400</div><p class="msg">Al-Baqarah has 286 ayahs.</p></div></div></div>
+  <div class="spec"><span class="cap-l">Manage upcoming order · turns this cycle</span><div class="ord">
+   <div class="o"><svg class="ic"><use href="#i-drag"/></svg><span class="wk">WK 85</span>Ibrahim Khan<span class="tcn"><i class="f"></i><i></i>1</span></div>
+   <div class="o lift"><svg class="ic"><use href="#i-drag"/></svg><span class="wk">WK 86</span>Yusuf Rahman<span class="tcn"><i></i><i></i>0</span></div>
+   <div class="o"><svg class="ic"><use href="#i-drag"/></svg><span class="wk">WK 87</span>Omar Farooq<span class="tcn"><i class="f"></i><i></i>1</span></div>
+   <div class="o"><svg class="ic"><use href="#i-drag"/></svg><span class="wk">WK 88</span>Hamza Ali<span class="tcn"><i class="f"></i><i class="f"></i>2</span></div>
+  </div></div>
+  <div class="spec"><span class="cap-l">Presenter banner</span><div class="ban"><svg class="ic"><use href="#i-alert"/></svg><div><b>Declare your planned range</b><small>Week 85 starts at Baqarah 158 · due Wed 23:59</small><button class="btn xs">Set end ayah</button></div></div></div>
+  <div class="spec"><span class="cap-l">Special week · Eid break</span><div class="eid"><span class="st nr">Attendance off</span><b>No class this week</b><p>Eid break · rotation paused. Next: Week 85, Fri 3 Apr.</p><div class="digits">--:--:--</div></div></div>
+  <div class="spec"><span class="cap-l">Toggle · segmented</span><div class="col"><div class="togrow"><span>Make note public</span><span class="tog" data-tog></span></div><div class="togrow"><span>Attendance this week</span><span class="tog on" data-tog></span></div><span class="seg" data-group style="align-self:flex-start"><button data-opt class="is-on">Points</button><button data-opt>Attend %</button><button data-opt>Streak</button></span></div></div>
+  <div class="spec"><span class="cap-l">Suggestion board</span><div><div class="sug"><button class="vote on"><svg class="ic"><use href="#i-up"/></svg>14</button><div><h5>Audio recording of each session with ayah timestamps</h5><small>Anonymous · 6 comments</small></div></div><div class="sug"><button class="vote"><svg class="ic"><use href="#i-up"/></svg>5</button><div><h5>Show tafsir page numbers next to the portion</h5><small>Yusuf Rahman · 2 comments</small></div></div></div></div>
+ </div>
+</section>
+
+<section class="block">
+ <div class="sh"><span class="n">04</span><div><h2>Rules</h2><p>Hold these when building screens not shown here.</p></div></div>
+ <div class="dos">
+  <div><h3><i></i>Do</h3><ul><li>Use amber only for time: countdowns, "live", "unconfirmed". If it isn't about time, it isn't amber.</li><li>Keep LED boards dark in both modes. They're objects, not themed surfaces.</li><li>Put every number in tabular figures; use 62%-width Archivo for big stats.</li><li>Pair every status color with an LED dot and a word.</li><li>Make the primary action bone-on-black (or black-on-marble), never colored.</li></ul></div>
+  <div class="dont"><h3><i></i>Don't</h3><ul><li>Don't use Doto for anything except digits on a board. It's a display face, not text.</li><li>Don't add shadows to cards. Use a border.</li><li>Don't use red for destructive buttons and points in the same view; destructive uses an outline.</li><li>Don't add Islamic pattern ornament. This system's identity is the clock.</li><li>Don't animate digits (flip, slide, count up).</li></ul></div>
+ </div>
+</section>
+<footer>RTJ · Design system 02 · Masjid Clock. Sample data is fictional.</footer>
+</div>
+
+<script>
+document.querySelectorAll('[data-swatches]').forEach(function(el){var m=el.dataset.swatches;el.innerHTML=Object.keys(N).map(function(k){return '<div class="sw"><span class="sw-chip" style="background:'+T[m][k]+'"></span><span class="sw-name">'+N[k][0]+'</span><span class="sw-hex">'+T[m][k]+'</span><span class="sw-role">'+N[k][1]+'</span></div>'}).join('')});
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('rtj-theme',t)}catch(e){}document.querySelectorAll('[data-set]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.set===t)})}
+document.querySelectorAll('[data-set]').forEach(function(b){b.onclick=function(){setTheme(b.dataset.set)}});setTheme(document.documentElement.dataset.theme);
+var target=Date.now()+((4*24+15)*3600+32*60+7)*1000;
+function p(n){return String(n).padStart(2,'0')}
+function tick(){var s=Math.max(0,Math.floor((target-Date.now())/1000)),d=Math.floor(s/86400);s%=86400;var h=Math.floor(s/3600);s%=3600;var m=Math.floor(s/60);s%=60;
+[['.cd-d',p(d)],['.cd-dn',d],['.cd-h',p(h)],['.cd-m',p(m)],['.cd-s',p(s)]].forEach(function(a){document.querySelectorAll(a[0]).forEach(function(e){e.textContent=a[1]})})}
+tick();setInterval(tick,1000);
+document.querySelectorAll('[data-group]').forEach(function(g){g.addEventListener('click',function(e){var b=e.target.closest('[data-opt]');if(!b)return;g.querySelectorAll('[data-opt]').forEach(function(x){x.classList.toggle('is-on',x===b)})})});
+document.querySelectorAll('[data-tog]').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
+</script>
+</body>
+</html>

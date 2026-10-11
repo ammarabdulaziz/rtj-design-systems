@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RTJ Limestone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;600&family=Scheherazade+New:wght@400&display=swap" rel="stylesheet">
+<script>
+const T={
+light:{bg:'#EFECE6',card:'#FBF9F5',fill:'#E6E1D8',sep:'#DFD9CE',text:'#22201C',text2:'#67625A',text3:'#706A60',teal:'#1D6970',onTeal:'#F5F8F6',tealSoft:'#DCE8E6',dawn:'#ECDCC6',dawnInk:'#55391D',sage:'#356B4E',sageSoft:'#DEE8DF',terra:'#97492A',terraSoft:'#F2E0D3',dusk:'#53667A',duskSoft:'#E1E6EC',ox:'#8C3730',oxSoft:'#F1DCD8',frame:'#2B2925',shade:'rgba(70,52,28,.16)'},
+dark:{bg:'#141311',card:'#1E1D1A',fill:'#2A2925',sep:'#33312C',text:'#EDE9E2',text2:'#A8A296',text3:'#8A8478',teal:'#73B8B8',onTeal:'#0D2324',tealSoft:'#1C3133',dawn:'#2E261D',dawnInk:'#E9CFA9',sage:'#8CC3A0',sageSoft:'#1D2B22',terra:'#E39A75',terraSoft:'#36251B',dusk:'#A9B9CA',duskSoft:'#232A31',ox:'#E38A80',oxSoft:'#3A201D',frame:'#34322E',shade:'rgba(0,0,0,.5)'}};
+const N={bg:['Limestone','Screen ground'],card:['Pale stone','Grouped lists, cards'],fill:['Cut stone','Secondary fills, tracks'],sep:['Joint','Separators'],text:['Shadow','Primary text'],text2:['Half shadow','Secondary text'],teal:['Corniche','Actions & selection (only)'],dawn:['Dawn on stone','The arch: next session'],dawnInk:['Dawn ink','Text on dawn'],sage:['Sage','On time'],terra:['Terracotta','Late'],dusk:['Dusk','Excused'],ox:['Oxblood','Absent, destructive']};
+(function(){var s='';for(var m in T){s+=(m=='light'?':root':':root[data-theme=dark]')+'{';for(var k in T[m])s+='--'+k+':'+T[m][k]+';';s+='}'}var e=document.createElement('style');e.textContent=s;document.head.appendChild(e);var t;try{t=localStorage.getItem('rtj-theme')}catch(x){}if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--disp:'Instrument Serif',Georgia,serif;--ui:'Hanken Grotesk',system-ui,sans-serif;--ar:'Scheherazade New',serif;--sw:1.5;
+--arch:polygon(0.00% 100%,0.00% 200.0px,0.40% 177.0px,1.61% 154.3px,3.61% 132.2px,6.37% 110.9px,9.86% 90.8px,14.04% 72.0px,18.85% 54.9px,24.23% 39.6px,30.11% 26.3px,36.42% 15.2px,43.08% 6.5px,50.00% 0.2px,56.92% 6.5px,63.58% 15.2px,69.89% 26.3px,75.77% 39.6px,81.15% 54.9px,85.96% 72.0px,90.14% 90.8px,93.63% 110.9px,96.39% 132.2px,98.39% 154.3px,99.60% 177.0px,100.00% 200.0px,100.00% 100%)}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--text);font:400 16px/1.5 var(--ui);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:var(--sw);stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ar{font-family:var(--ar);direction:rtl}
+.foot-n{font-size:13px;color:var(--text2)}
+.eyebrow{font:600 12px/1.3 var(--ui);color:var(--text2)}
+
+/* docs chrome */
+.topnav{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:22px;height:56px;padding:0 max(16px,calc((100vw - 1240px)/2));background:var(--bg);border-bottom:1px solid var(--sep);font-size:14px}
+.topnav a{color:var(--text2);text-decoration:none}
+.topnav a[aria-current]{color:var(--text);font-weight:600}
+.topnav .links{display:flex;gap:20px}
+.topnav .sp{flex:1}
+.segc{display:inline-flex;padding:2px;border-radius:10px;background:var(--fill)}
+.segc button{padding:6px 14px;border-radius:8px;font:600 13px/1 var(--ui);color:var(--text2)}
+.segc button[aria-pressed=true],.segc button.is-on{background:var(--card);color:var(--text);box-shadow:0 1px 2px var(--shade),0 0 0 .5px var(--sep)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+.intro{padding:80px 0 56px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:56px;align-items:end}
+.intro h1{font:400 clamp(64px,10vw,120px)/.9 var(--disp);letter-spacing:-.025em;margin:12px 0 20px}
+.intro h1 i{color:var(--teal)}
+.lede{font-size:19px;line-height:1.55;color:var(--text2);max-width:40ch}
+.facts{background:var(--card);border-radius:20px;padding:4px 20px}
+.facts div{padding:14px 0;border-bottom:1px solid var(--sep);display:grid;grid-template-columns:120px 1fr;gap:14px}
+.facts div:last-child{border-bottom:0}
+.facts dt{font-weight:600;font-size:13px;color:var(--text2);padding-top:1px}
+.facts dd{font-size:15px;line-height:1.5}
+section.block{padding:64px 0}
+.sh{margin-bottom:36px;max-width:720px}
+.sh h2{font:400 48px/1 var(--disp);letter-spacing:-.015em}
+.sh p{color:var(--text2);margin-top:10px;font-size:16px}
+@media (max-width:860px){.intro{grid-template-columns:1fr;gap:32px;padding-top:48px}.facts div{grid-template-columns:1fr;gap:2px}.topnav .links{display:none}}
+
+/* phones */
+.phones{display:flex;flex-wrap:wrap;gap:56px 36px}
+.pw{width:min(375px,100%)}
+.capn{margin-top:16px;font-size:14px;color:var(--text2)}
+.capn b{color:var(--text);font-weight:600;margin-right:6px}
+.phone{height:780px;border-radius:54px;padding:10px;background:var(--frame);box-shadow:0 40px 70px -40px var(--shade),0 0 0 1px rgba(255,255,255,.05) inset}
+.screen{position:relative;height:100%;border-radius:44px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.status{height:50px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 36px;font:600 15px/1 -apple-system,system-ui,sans-serif;color:var(--text)}
+.status .sig{display:flex;gap:5px;align-items:center}
+.status .sig i{display:block;width:17px;height:10px;border:1.5px solid currentColor;border-radius:3px;position:relative}
+.status .sig i::after{content:"";position:absolute;inset:1.5px 4px 1.5px 1.5px;background:currentColor;border-radius:1px}
+.status .sig s{display:block;width:16px;height:10px;background:currentColor;clip-path:polygon(0 70%,20% 70%,20% 100%,0 100%,0 70%,27% 100%,27% 48%,47% 48%,47% 100%,53% 100%,53% 24%,73% 24%,73% 100%,80% 100%,80% 0,100% 0,100% 100%,0 100%)}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:32px;border-radius:20px;background:#070707;z-index:3}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 18px 28px}
+.scroll::-webkit-scrollbar{display:none}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--text);z-index:4}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px 28px;background:var(--card);border-top:.5px solid var(--sep)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--text3);font:600 10.5px/1 var(--ui)}
+.tab .ic{width:24px;height:24px}
+.tab.on{color:var(--teal)}
+.tab.on .ic{stroke-width:2}
+
+.nav{display:flex;justify-content:space-between;align-items:center;height:40px}
+.nav .lnk{color:var(--teal);font-size:16px;display:flex;align-items:center;gap:2px}
+.lt{font:400 40px/1.05 var(--disp);letter-spacing:-.01em;margin:2px 0 14px}
+.lt small{display:block;font:600 13px/1.3 var(--ui);color:var(--text2);letter-spacing:0;margin-bottom:2px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--fill);display:grid;place-items:center;font:600 12.5px/1 var(--ui);color:var(--text2);flex:none}
+.av.t{background:var(--tealSoft);color:var(--teal)}
+
+/* arch card */
+.arch{position:relative;background:var(--dawn);color:var(--dawnInk);clip-path:var(--arch);border-radius:0 0 22px 22px;padding:58px 22px 20px;text-align:center}
+.arch .wk{font:600 12px/1 var(--ui);letter-spacing:.06em}
+.arch .big{font:400 66px/.9 var(--disp);letter-spacing:-.03em;margin:12px 0 0}
+.arch .big i{font-size:30px;letter-spacing:0;margin-left:4px}
+.arch .hms{font:600 14px/1 var(--ui);font-variant-numeric:tabular-nums;opacity:.75;margin-top:8px;letter-spacing:.04em}
+.arch hr{border:0;height:1px;background:color-mix(in srgb,var(--dawnInk) 18%,transparent);margin:22px 0 16px}
+.arch .por{font:400 26px/1.1 var(--disp)}
+.arch .ar{font-size:20px;line-height:1.5;opacity:.85}
+.arch .by{font-size:14px;margin-top:6px;opacity:.85}
+.pills{display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 11px;border-radius:999px;font:600 12.5px/1 var(--ui);background:color-mix(in srgb,var(--dawnInk) 9%,transparent)}
+.pill .ic{width:14px;height:14px}
+.pill.warn{background:var(--card);color:var(--terra)}
+
+/* grouped list */
+.gh{font:600 13px/1 var(--ui);color:var(--text2);margin:24px 4px 8px;display:flex;justify-content:space-between}
+.group{background:var(--card);border-radius:16px;overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 14px}
+.li+.li{box-shadow:inset 0 .5px 0 var(--sep);}
+.li>.ic{color:var(--teal)}
+.li .t{flex:1;min-width:0;font-size:15.5px;line-height:1.3}
+.li .t small{display:block;font-size:13px;color:var(--text2);margin-top:1px}
+.li .chev{width:15px;height:15px;color:var(--text3)}
+.badge{min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:var(--teal);color:var(--onTeal);font:600 12.5px/22px var(--ui);text-align:center}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:50px;padding:0 22px;border-radius:999px;font:600 16px/1 var(--ui);white-space:nowrap}
+.btn.pri{background:var(--teal);color:var(--onTeal)}
+.btn.sec{background:var(--fill);color:var(--text)}
+.btn.tint{background:var(--tealSoft);color:var(--teal)}
+.btn.txt{color:var(--teal);padding:0 6px}
+.btn.del{background:var(--oxSoft);color:var(--ox)}
+.btn.dis{background:var(--fill);color:var(--text3);cursor:not-allowed}
+.btn.sm{height:38px;padding:0 16px;font-size:14.5px}
+.btn.full{width:100%}
+
+/* status */
+.st{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font:600 12.5px/1 var(--ui);white-space:nowrap}
+.st.ok{background:var(--sageSoft);color:var(--sage)}.st.late{background:var(--terraSoft);color:var(--terra)}.st.exc{background:var(--duskSoft);color:var(--dusk)}.st.abs{background:var(--oxSoft);color:var(--ox)}.st.nr{background:var(--fill);color:var(--text2)}
+.st.pend{background:var(--terraSoft);color:var(--terra);box-shadow:inset 0 0 0 1px currentColor;background:transparent}
+
+/* check-in sheet */
+.camv{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 30%,#4a4740,#121110 75%)}
+.camv .vf{position:absolute;top:110px;left:50%;transform:translateX(-50%);width:190px;height:190px;border-radius:28px;box-shadow:0 0 0 2px rgba(255,255,255,.75)}
+.camv .vf::after{content:"";position:absolute;inset:30px;background:repeating-conic-gradient(rgba(255,255,255,.35) 0 25%,transparent 0 50%) 0 0/14px 14px;border-radius:6px}
+.dim{position:absolute;inset:0;background:rgba(10,9,8,.35);z-index:1}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:96px;z-index:2;background:var(--bg);border-radius:28px 28px 0 0;padding:8px 18px 32px;box-shadow:0 -10px 40px rgba(0,0,0,.25);display:flex;flex-direction:column}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--sep);margin:0 auto 10px;flex:none}
+.seal{width:76px;height:76px;margin:12px auto 10px;position:relative;display:grid;place-items:center;color:var(--terra)}
+.seal svg.s{position:absolute;inset:0;width:100%;height:100%;fill:var(--terraSoft);stroke:currentColor;stroke-width:1.2}
+.seal b{position:relative;font:400 30px/1 var(--disp)}
+.sheet h2{text-align:center;font:400 32px/1.05 var(--disp);letter-spacing:-.01em}
+.sheet .sub{text-align:center;font-size:14.5px;color:var(--text2);margin:6px 0 18px}
+.kv{display:flex;justify-content:space-between;font-size:15px}
+.kv span{color:var(--text2)}
+.kv b{font-weight:600;font-variant-numeric:tabular-nums}
+.tog{width:51px;height:31px;border-radius:999px;background:var(--fill);position:relative;flex:none;cursor:pointer;transition:background .2s}
+.tog::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.18);transition:transform .2s cubic-bezier(.3,.7,.4,1)}
+.tog.on{background:var(--teal)}
+.tog.on::after{transform:translateX(20px)}
+.tf{padding:12px 14px;font-size:15.5px;line-height:1.45;color:var(--text);min-height:70px}
+.note-s{font-size:12.5px;color:var(--text2);margin:7px 4px 0;display:flex;gap:5px;align-items:center}
+.note-s .ic{width:13px;height:13px}
+.oath{text-align:center;margin:auto 0 14px;font-size:14.5px;line-height:1.5;color:var(--text2)}
+.oath b{display:block;font:400 22px/1.5 var(--ar);color:var(--text)}
+
+/* approvals */
+.req{background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px}
+.req-h{display:flex;align-items:center;gap:10px}
+.req-h .t{flex:1;min-width:0}
+.req-h b{display:block;font-weight:600;font-size:15.5px;line-height:1.25}
+.req-h small{display:block;font-size:13px;color:var(--text2)}
+.pair{display:flex;flex:none}
+.pair .av+.av{margin-left:-10px;box-shadow:0 0 0 2.5px var(--card)}
+.req p.body{font-size:15px;line-height:1.45;margin-top:12px}
+.req blockquote{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--bg);font-size:15px;line-height:1.45}
+.fair{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--bg);font-size:13.5px;color:var(--text2)}
+.fair b{color:var(--text);font-weight:600}
+.fair .dots{display:flex;gap:3px}
+.fair .dots i{width:8px;height:8px;border-radius:50%;background:var(--sep)}
+.fair .dots i.f{background:var(--teal)}
+.fair .ok{margin-left:auto;color:var(--sage);font-weight:600}
+.req .acts{display:flex;gap:8px;margin-top:14px}
+.req .acts .btn{flex:1}
+
+/* leaderboard */
+.ringcard{display:flex;align-items:center;gap:18px;background:var(--card);border-radius:20px;padding:16px}
+.ring{width:84px;height:84px;position:relative;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:400 30px/1 var(--disp)}
+.ringcard p{font-size:14px;color:var(--text2);line-height:1.45}
+.ringcard p b{display:block;font-weight:600;color:var(--text);font-size:15.5px}
+.lr{display:flex;align-items:center;gap:12px;padding:10px 14px}
+.lr+.lr{box-shadow:inset 0 .5px 0 var(--sep)}
+.lr .t{flex:1;min-width:0}
+.lr .t b{display:block;font-weight:600;font-size:15px}
+.lr .t small{font-size:13px;color:var(--text2)}
+.lr .p{text-align:right;font:400 24px/1 var(--disp);font-variant-numeric:tabular-nums;color:var(--terra)}
+.lr .p small{display:block;font:600 11px/1.2 var(--ui);color:var(--text3)}
+.lr .p.z{color:var(--text3)}
+.lr.me{background:var(--tealSoft)}
+.sortrow{display:flex;justify-content:space-between;align-items:center;margin:22px 4px 8px}
+
+/* note */
+.ntitle{font:400 32px/1.08 var(--disp);letter-spacing:-.01em;margin:6px 0 10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 11px;border-radius:999px;background:var(--card);font:600 12.5px/1 var(--ui);color:var(--text2)}
+.chip .ic{width:14px;height:14px}
+.nt p{font-size:16px;line-height:1.6;margin-bottom:12px}
+.nt ul{margin:0 0 14px 20px;font-size:16px;line-height:1.55}
+.nt li::marker{color:var(--teal)}
+.verse{background:var(--card);border-radius:20px;padding:18px 16px 14px;margin:6px 0 16px;position:relative}
+.verse .ar{font-size:27px;line-height:1.9;text-align:center}
+.verse .en{font:italic 400 19px/1.35 var(--disp);text-align:center;color:var(--text2);margin-top:8px}
+.verse .ref{display:flex;justify-content:center;gap:6px;margin-top:12px}
+.toolbar{display:flex;gap:6px;padding:8px;border-radius:999px;background:var(--card);box-shadow:0 6px 20px -8px var(--shade);width:max-content;margin:6px auto 0}
+.toolbar span{height:34px;padding:0 12px;border-radius:999px;display:flex;align-items:center;gap:5px;font:600 13px/1 var(--ui);color:var(--text2)}
+.toolbar span.on{background:var(--tealSoft);color:var(--teal)}
+
+/* foundations */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:860px){.fgrid{grid-template-columns:1fr}}
+.palc{border-radius:24px;padding:22px}
+.palc h3{font:400 30px/1 var(--disp);margin-bottom:4px}
+.palc>p{font-size:14px;margin-bottom:16px}
+.palc [data-swatches]{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px}
+.sw{display:grid;gap:2px}
+.sw-chip{height:64px;border-radius:16px;margin-bottom:6px;box-shadow:inset 0 0 0 1px rgba(120,110,95,.18)}
+.sw-name{font-weight:600;font-size:13.5px}
+.sw-hex{font-size:12.5px;opacity:.7;font-variant-numeric:tabular-nums}
+.sw-role{font-size:12px;opacity:.7;line-height:1.35}
+.palc.l{background:#FBF9F5;color:#22201C}
+.palc.d{background:#1E1D1A;color:#EDE9E2}
+.typ{margin-top:24px;background:var(--card);border-radius:24px;padding:6px 22px}
+.ty{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--sep)}
+.ty:last-child{border-bottom:0}
+.ty .k{font-size:13px;color:var(--text2);line-height:1.45}
+.ty .k b{display:block;color:var(--text);font-weight:600}
+@media (max-width:640px){.ty{grid-template-columns:1fr;gap:6px}}
+.prin{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:24px}
+@media (max-width:860px){.prin{grid-template-columns:1fr}}
+.prin>div{background:var(--card);border-radius:24px;padding:22px}
+.prin h4{font:400 26px/1.1 var(--disp);margin:14px 0 8px}
+.prin p{font-size:14.5px;line-height:1.55;color:var(--text2)}
+.demo{height:84px;display:flex;align-items:flex-end;gap:10px}
+.demo i{display:block;background:var(--fill)}
+
+/* component sheet */
+.sheetgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+.spec{background:var(--card);border-radius:24px;padding:20px}
+.spec>.eyebrow{display:block;margin-bottom:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.col{display:flex;flex-direction:column;gap:12px}
+.inp label{display:block;font:600 13px/1 var(--ui);color:var(--text2);margin:0 4px 7px}
+.inp .f{height:50px;display:flex;align-items:center;gap:8px;padding:0 16px;border-radius:14px;background:var(--bg);font-size:16px}
+.inp .f small{color:var(--text3);font-size:16px}
+.inp.err .f{box-shadow:inset 0 0 0 1.5px var(--ox)}
+.inp .msg{font-size:13px;color:var(--ox);margin:7px 4px 0}
+.ord{background:var(--bg);border-radius:16px;overflow:visible}
+.ord .o{display:flex;align-items:center;gap:12px;padding:10px 14px;font-size:15px}
+.ord .o+.o{box-shadow:inset 0 .5px 0 var(--sep)}
+.ord .o .t{flex:1}
+.ord .o .t small{display:block;font-size:12.5px;color:var(--text2)}
+.ord .o .ic{color:var(--text3)}
+.ord .o.lift{background:var(--card);border-radius:14px;box-shadow:0 14px 30px -12px var(--shade),0 0 0 .5px var(--sep);transform:scale(1.03)}
+.ord .dots{display:flex;gap:3px}
+.ord .dots i{width:7px;height:7px;border-radius:50%;background:var(--sep)}
+.ord .dots i.f{background:var(--teal)}
+.ban{display:flex;gap:12px;padding:14px;border-radius:18px;background:var(--dawn);color:var(--dawnInk)}
+.ban b{display:block;font-weight:600;font-size:15px}
+.ban small{display:block;font-size:13.5px;margin:2px 0 10px;opacity:.85}
+.eid{background:var(--dawn);color:var(--dawnInk);clip-path:var(--arch);border-radius:0 0 20px 20px;padding:70px 20px 22px;text-align:center}
+.eid .ar{font-size:30px;line-height:1.4}
+.eid h4{font:400 30px/1.1 var(--disp);margin:6px 0 6px}
+.eid p{font-size:14px;opacity:.85}
+.sug{display:flex;gap:12px;align-items:flex-start;padding:12px 0}
+.sug+.sug{border-top:.5px solid var(--sep)}
+.vote{flex:none;width:48px;height:56px;border-radius:14px;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 15px/1 var(--ui);color:var(--text2)}
+.vote .ic{width:16px;height:16px}
+.vote.on{background:var(--tealSoft);color:var(--teal)}
+.sug h5{font-weight:600;font-size:15px;line-height:1.35}
+.sug small{font-size:13px;color:var(--text2)}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:860px){.dos{grid-template-columns:1fr}}
+.dos>div{background:var(--card);border-radius:24px;padding:22px}
+.dos h3{font:400 32px/1 var(--disp);margin-bottom:8px}
+.dos li{list-style:none;padding:12px 0 12px 26px;border-top:.5px solid var(--sep);position:relative;font-size:15px;line-height:1.5}
+.dos li::before{content:"";position:absolute;left:2px;top:17px;width:12px;height:12px;border-radius:50%;background:var(--sageSoft);box-shadow:inset 0 0 0 3px var(--sage)}
+.dos .dont li::before{background:var(--oxSoft);box-shadow:inset 0 0 0 3px var(--ox)}
+footer{padding:20px 0 64px;font-size:13px;color:var(--text3)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></symbol>
+ <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4"/></symbol>
+ <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V6.5A2.5 2.5 0 0 1 6.5 4H8M16 4h1.5A2.5 2.5 0 0 1 20 6.5V8M20 16v1.5a2.5 2.5 0 0 1-2.5 2.5H16M8 20H6.5A2.5 2.5 0 0 1 4 17.5V16M4 12h16"/></symbol>
+ <symbol id="i-note" viewBox="0 0 24 24"><path d="M7 4h7l4 4v10.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 18.5v-13A1.5 1.5 0 0 1 7 4z"/><path d="M13.5 4v4.5H18M9 12.5h6M9 16h4"/></symbol>
+ <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="8.5" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="12" r=".9" fill="currentColor" stroke="none"/></symbol>
+ <symbol id="i-qr" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><path d="M14 14h2v2h-2zM18 14h2M14 18h2M18 18h2v2"/></symbol>
+ <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></symbol>
+ <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13.5 6.5 5h11l2.5 8.5V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 13.5h4.5l1 2h5l1-2H20"/></symbol>
+ <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+ <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+ <symbol id="i-drag" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14"/></symbol>
+ <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5"/></symbol>
+ <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+ <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 20s6-5.5 6-10.2A6 6 0 0 0 6 9.8C6 14.5 12 20 12 20z"/><circle cx="12" cy="10" r="2.2"/></symbol>
+ <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5v13"/></symbol>
+ <symbol id="i-sun" viewBox="0 0 24 24"><path d="M4 17h16M7 17a5 5 0 0 1 10 0M12 7V5M6.3 10.3 5 9M17.7 10.3 19 9"/></symbol>
+ <symbol id="khatam" viewBox="0 0 40 40"><path d="M20 2.5 25 8.9 33.1 8.1 32.4 16.2 38.5 20 32.4 23.8 33.1 31.9 25 31.1 20 37.5 15 31.1 6.9 31.9 7.6 23.8 1.5 20 7.6 16.2 6.9 8.1 15 8.9Z"/></symbol>
+</svg>
+
+<nav class="topnav">
+ <a href="index.html">RTJ Design Systems</a>
+ <span class="links"><a href="1-mushaf.html">Mushaf</a><a href="2-masjid-clock.html">Masjid Clock</a><a href="3-limestone.html" aria-current="page">Limestone</a><a href="4-sadu.html">Sadu</a></span>
+ <span class="sp"></span>
+ <span class="segc" role="group" aria-label="Theme"><button data-set="light">Light</button><button data-set="dark">Dark</button></span>
+</nav>
+
+<div class="wrap">
+<header class="intro">
+ <div>
+  <p class="eyebrow">Design system 03 of 04</p>
+  <h1>Lime<i>stone</i></h1>
+  <p class="lede">Quiet, like the courtyard of the Museum of Islamic Art at dawn. Pale stone, deep cut shadows, and one colour taken from the Corniche water. It behaves like a native phone app, and the only ornament is the shape of the arch.</p>
+ </div>
+ <dl class="facts">
+  <div><dt>Feels</dt><dd>Calm and reverent. Opening it should feel like walking into the masjid after Fajr.</dd></div>
+  <div><dt>Islamic identity</dt><dd><b>Subtle, structural.</b> The next-session card is a mihrab arch. Successful check-in gets an 8-point khatam seal. Nothing else.</dd></div>
+  <div><dt>Drawn from</dt><dd>I. M. Pei's Museum of Islamic Art, Doha; the dawn tone on its limestone; Apple's own apps (Things 3, Health) for behaviour.</dd></div>
+  <div><dt>Gives up</dt><dd>Drama and brand recall. It's the most familiar of the four, and stats are deliberately understated.</dd></div>
+ </dl>
+</header>
+
+<section class="block" style="padding-top:24px">
+ <div class="sh"><h2>Screens</h2><p>Platform-neutral but native in spirit: large titles, grouped lists, bottom sheets, pill buttons. The countdown is live.</p></div>
+ <div class="phones">
+
+  <!-- HOME -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll">
+     <div class="nav"><span></span><span class="av t">IK</span></div>
+     <h1 class="lt"><small>Rijal · Sunday 11 October</small>Next class</h1>
+     <article class="arch">
+      <p class="wk">WEEK 84 · FRIDAY 16 OCT</p>
+      <p class="big"><span class="cd-dn">4</span><i>days</i></p>
+      <p class="hms"><span class="cd-h">15</span>h <span class="cd-m">32</span>m <span class="cd-s">07</span>s</p>
+      <hr>
+      <p class="ar">سورة البقرة</p>
+      <p class="por">Al-Baqarah 148 – 157</p>
+      <p class="by">Bilal Siddiqui · continuing from 148</p>
+      <div class="pills"><span class="pill warn"><svg class="ic"><use href="#i-clock"/></svg>6:15 am · not confirmed</span><span class="pill"><svg class="ic"><use href="#i-pin"/></svg>Main Hall</span></div>
+     </article>
+     <p class="gh"><span>Coordinator</span></p>
+     <div class="group">
+      <div class="li"><svg class="ic"><use href="#i-inbox"/></svg><span class="t">Approvals</span><span class="badge">3</span><svg class="ic chev"><use href="#i-chev"/></svg></div>
+      <div class="li"><svg class="ic"><use href="#i-clock"/></svg><span class="t">Confirm start time<small>Using last week's 6:15 am</small></span><svg class="ic chev"><use href="#i-chev"/></svg></div>
+      <div class="li"><svg class="ic"><use href="#i-qr"/></svg><span class="t">Generate this week's QR</span><svg class="ic chev"><use href="#i-chev"/></svg></div>
+     </div>
+     <p class="gh"><span>Coming up</span><span style="color:var(--teal)">Schedule</span></p>
+     <div class="group">
+      <div class="li"><span class="av t">IK</span><span class="t">You · Week 85<small>23 Oct · from Al-Baqarah 158</small></span></div>
+      <div class="li"><span class="av">OF</span><span class="t">Omar Farooq · Week 86<small>30 Oct</small></span><span class="st pend">Swap pending</span></div>
+     </div>
+    </div>
+    <nav class="tabs"><span class="tab on"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab"><svg class="ic"><use href="#i-scan"/></svg>Attendance</span><span class="tab"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>Home</b>The next session as a mihrab arch</p>
+  </div>
+
+  <!-- CHECK-IN -->
+  <div class="pw">
+   <div class="phone"><div class="screen" style="background:#121110">
+    <div class="camv"><div class="vf"></div></div>
+    <div class="dim"></div>
+    <div class="island"></div>
+    <div class="status" style="color:#fff;position:relative;z-index:2"><span>6:38</span><span class="sig"><s></s><i></i></span></div>
+    <div class="sheet">
+     <div class="grab"></div>
+     <div class="seal"><svg class="s"><use href="#khatam"/></svg><b>8</b></div>
+     <h2>Eight minutes late</h2>
+     <p class="sub">Scanned 6:38 am · grace ended 6:30 am</p>
+     <div class="group" style="background:var(--card)">
+      <div class="li kv"><span>Tier</span><b>Late · tier 2</b></div>
+      <div class="li kv"><span>Points</span><b style="color:var(--terra)">+2 · 0 if approved</b></div>
+      <div class="li"><span class="t">I have a valid reason</span><span class="tog on" data-tog></span></div>
+      <div class="tf" style="box-shadow:inset 0 .5px 0 var(--sep)">Accident on Al Rayyan Road, traffic held for twenty minutes.</div>
+     </div>
+     <p class="note-s"><svg class="ic"><use href="#i-lock"/></svg>Only you and wing staff can see your reason.</p>
+     <p class="oath"><b>بسم الله</b>I confirm the above information is accurate.</p>
+     <button class="btn pri full">Confirm</button>
+    </div>
+    <div class="homebar" style="z-index:5"></div>
+   </div></div>
+   <p class="capn"><b>Check-in</b>Sheet over the scanner, late with reason</p>
+  </div>
+
+  <!-- APPROVALS -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll">
+     <div class="nav"><span class="lnk"><svg class="ic"><use href="#i-back"/></svg>Admin</span></div>
+     <h1 class="lt">Approvals</h1>
+     <div class="segc" data-group style="display:flex;margin-bottom:16px"><button data-opt class="is-on" style="flex:1">All</button><button data-opt style="flex:1">Swaps</button><button data-opt style="flex:1">Late</button><button data-opt style="flex:1">Excuses</button></div>
+     <div class="req">
+      <div class="req-h"><span class="pair"><span class="av">BS</span><span class="av">OF</span></span><span class="t"><b>Swap for Week 86</b><small>Bilal ↔ Omar · Omar accepted</small></span></div>
+      <p class="body">Bilal presents on 30 Oct. Omar takes Bilal's next turn, Week 91.</p>
+      <div class="fair"><span>Turns this cycle</span><b>Bilal</b><span class="dots"><i class="f"></i><i></i></span><b>Omar</b><span class="dots"><i class="f"></i><i></i></span><span class="ok">Even</span></div>
+      <div class="acts"><button class="btn sec sm">Decline</button><button class="btn pri sm">Approve</button></div>
+     </div>
+     <div class="req">
+      <div class="req-h"><span class="av">HA</span><span class="t"><b>Hamza Ali · late reason</b><small>Week 83 · tier 2</small></span><span class="st late">+2</span></div>
+      <blockquote>My son had a fever, waited for the clinic to open.</blockquote>
+      <div class="acts"><button class="btn sec sm">Decline</button><button class="btn pri sm">Approve</button></div>
+     </div>
+     <div class="req">
+      <div class="req-h"><span class="av">ZH</span><span class="t"><b>Zaid Hussain · excuse</b><small>Week 85 · 23 Oct</small></span></div>
+      <blockquote>Travelling for Umrah, back on the 25th.</blockquote>
+     </div>
+    </div>
+    <nav class="tabs"><span class="tab"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab"><svg class="ic"><use href="#i-scan"/></svg>Attendance</span><span class="tab"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab on"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>Approvals</b>Fairness shown as dots, not numbers</p>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll">
+     <div class="nav"><span></span><span class="lnk">Rules</span></div>
+     <h1 class="lt"><small>Rijal · 2026</small>Attendance</h1>
+     <div class="ringcard"><div class="ring"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="37" style="stroke:var(--fill)"/><circle cx="42" cy="42" r="37" style="stroke:var(--teal);stroke-linecap:round" stroke-dasharray="211.6 232.5"/></svg><b>91%</b></div><p><b>The wing is showing up.</b>36 sessions this year, 14 members. Excused sessions don't count against anyone.</p></div>
+     <div class="sortrow"><span class="eyebrow">Most points first</span><span class="eyebrow" style="color:var(--teal)">Sort</span></div>
+     <div class="group">
+      <div class="lr"><span class="av">HA</span><span class="t"><b>Hamza Ali</b><small>78% · streak 2</small></span><span class="p">31<small>pts</small></span></div>
+      <div class="lr"><span class="av">TM</span><span class="t"><b>Tariq Mahmood</b><small>83% · streak 4</small></span><span class="p">24<small>pts</small></span></div>
+      <div class="lr"><span class="av">ZH</span><span class="t"><b>Zaid Hussain</b><small>89% · streak 6</small></span><span class="p">9<small>pts</small></span></div>
+      <div class="lr me"><span class="av t" style="background:var(--card)">IK</span><span class="t"><b>You</b><small>94% · streak 12</small></span><span class="p">5<small>pts</small></span></div>
+      <div class="lr"><span class="av">OF</span><span class="t"><b>Omar Farooq</b><small>97% · streak 18</small></span><span class="p">2<small>pts</small></span></div>
+      <div class="lr"><span class="av">BS</span><span class="t"><b>Bilal Siddiqui</b><small>100% · streak 36</small></span><span class="p z">0<small>pts</small></span></div>
+     </div>
+    </div>
+    <nav class="tabs"><span class="tab"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab on"><svg class="ic"><use href="#i-scan"/></svg>Attendance</span><span class="tab"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>Attendance</b>Wing leaderboard, gentle tone</p>
+  </div>
+
+  <!-- NOTE -->
+  <div class="pw">
+   <div class="phone"><div class="screen">
+    <div class="island"></div>
+    <div class="status"><span>9:41</span><span class="sig"><s></s><i></i></span></div>
+    <div class="scroll nt">
+     <div class="nav"><span class="lnk"><svg class="ic"><use href="#i-back"/></svg>Notes</span><span class="lnk" style="font-weight:600">Done</span></div>
+     <h1 class="ntitle">Remembrance is answered</h1>
+     <div class="chips"><span class="chip"><svg class="ic"><use href="#i-lock"/></svg>Private</span><span class="chip"><svg class="ic"><use href="#i-book"/></svg>Week 84 · Al-Baqarah</span></div>
+     <p>Bilal opened with the change of qibla and closed on this ayah. The promise comes first, before any instruction:</p>
+     <div class="verse">
+      <p class="ar">فَٱذْكُرُونِىٓ أَذْكُرْكُمْ وَٱشْكُرُوا۟ لِى وَلَا تَكْفُرُونِ</p>
+      <p class="en">So remember Me; I will remember you. And be grateful to Me and do not deny Me.</p>
+      <div class="ref"><span class="st nr">Al-Baqarah 2:152</span><span class="st nr">Saheeh International</span></div>
+     </div>
+     <ul><li>Dhikr is two-way, not a ritual list.</li><li>Shukr is paired with dhikr, so look for this pairing elsewhere.</li></ul>
+     <div class="toolbar"><span>Aa</span><span>List</span><span>Image</span><span class="on">Verse</span></div>
+    </div>
+    <nav class="tabs"><span class="tab"><svg class="ic"><use href="#i-home"/></svg>Home</span><span class="tab"><svg class="ic"><use href="#i-cal"/></svg>Schedule</span><span class="tab"><svg class="ic"><use href="#i-scan"/></svg>Attendance</span><span class="tab on"><svg class="ic"><use href="#i-note"/></svg>Notes</span><span class="tab"><svg class="ic"><use href="#i-more"/></svg>More</span></nav>
+    <div class="homebar"></div>
+   </div></div>
+   <p class="capn"><b>Notes</b>Verse block in a personal note</p>
+  </div>
+ </div>
+</section>
+
+<section class="block">
+ <div class="sh"><h2>Foundations</h2><p>Warm stone neutrals in both modes, one teal for actions, and a dawn tone reserved for the next session. Every text pair passes WCAG AA.</p></div>
+ <div class="fgrid">
+  <div class="palc l"><h3>Light · morning</h3><p style="opacity:.7">Default during the day</p><div data-swatches="light"></div></div>
+  <div class="palc d"><h3>Dark · after Isha</h3><p style="opacity:.7">Warm, never blue-black</p><div data-swatches="dark"></div></div>
+ </div>
+ <div class="typ">
+  <div class="ty"><span class="k"><b>Large title</b>Instrument Serif · 40/1.05</span><span style="font:400 40px/1.05 var(--disp)">Next class</span></div>
+  <div class="ty"><span class="k"><b>Countdown</b>Instrument Serif · 66/0.9 · −0.03em</span><span style="font:400 66px/.9 var(--disp);letter-spacing:-.03em">4 <i style="font-size:30px">days</i></span></div>
+  <div class="ty"><span class="k"><b>Headline</b>Hanken Grotesk 600 · 15.5/1.3</span><span style="font-weight:600;font-size:15.5px">Swap for Week 86</span></div>
+  <div class="ty"><span class="k"><b>Body</b>Hanken Grotesk 400 · 16/1.6</span><span style="font-size:16px;line-height:1.6;max-width:56ch">Bilal presents on 30 Oct. Omar takes Bilal's next turn, Week 91.</span></div>
+  <div class="ty"><span class="k"><b>Footnote</b>Hanken Grotesk 400 · 13/1.4</span><span style="font-size:13px;color:var(--text2)">Using last week's 6:15 am until staff confirm</span></div>
+  <div class="ty"><span class="k"><b>Translation</b>Instrument Serif italic · 19/1.35</span><span style="font:italic 400 19px/1.35 var(--disp);color:var(--text2)">So remember Me; I will remember you.</span></div>
+  <div class="ty"><span class="k"><b>Quran</b>Scheherazade New · 27/1.9 · RTL</span><span class="ar" style="font-size:30px;line-height:1.9;text-align:right">فَٱذْكُرُونِىٓ أَذْكُرْكُمْ</span></div>
+ </div>
+ <div class="prin">
+  <div><div class="demo"><i style="width:60px;height:40px;border-radius:8px"></i><i style="width:70px;height:56px;border-radius:16px"></i><i style="width:80px;height:72px;border-radius:24px"></i><i style="width:60px;height:30px;border-radius:999px;background:var(--teal)"></i></div><h4>Radius grows with size</h4><p>Chips and buttons are pills. Inputs 14px, list groups 16px, cards 20px, sheets 28px. Bigger things get softer corners, like cut stone weathered at the edges.</p></div>
+  <div><div class="demo"><div class="arch" style="width:120px;height:84px;padding:0;clip-path:polygon(0 100%,0 52%,2% 44%,6% 33%,12% 22%,21% 12%,33% 5%,50% 0,67% 5%,79% 12%,88% 22%,94% 33%,98% 44%,100% 52%,100% 100%);border-radius:0 0 12px 12px"></div><div class="seal" style="width:60px;height:60px;margin:0 0 0 12px;color:var(--sage)"><svg class="s" style="fill:var(--sageSoft)"><use href="#khatam"/></svg></div></div><h4>Two ornaments</h4><p>The mihrab arch frames the next session, and only the next session. The khatam seal marks a check-in result. Nothing else carries Islamic ornament. The Arabic does the rest.</p></div>
+  <div><div class="demo" style="font-size:13px;color:var(--text2)">200ms · ease-out<br>sheets 350ms · spring-free</div><h4>Soft, physical motion</h4><p>Sheets rise, toggles slide, the dragged row lifts. Nothing bounces, nothing fades in on scroll, and the countdown digits just change.</p></div>
+ </div>
+</section>
+
+<section class="block">
+ <div class="sh"><h2>Components</h2><p>Statuses are soft-filled pills. Each one is a word first and a colour second.</p></div>
+ <div class="sheetgrid">
+  <div class="spec"><span class="eyebrow">Buttons</span><div class="col"><div class="row"><button class="btn pri">Approve</button><button class="btn sec">Decline</button><button class="btn txt">Edit</button></div><div class="row"><button class="btn tint sm">Request swap</button><button class="btn del sm">Force swap</button><button class="btn dis sm">Swap closes 5 days out</button></div></div></div>
+  <div class="spec"><span class="eyebrow">Attendance status · all 8</span><div class="row"><span class="st ok">On time</span><span class="st late">Late · +1</span><span class="st pend">Reason pending</span><span class="st ok">Late · excused</span><span class="st exc">Excused</span><span class="st abs">Unexcused · +20</span><span class="st abs">No-show · +8</span><span class="st nr">Not required</span></div></div>
+  <div class="spec"><span class="eyebrow">Inputs</span><div class="col"><div class="inp"><label>Planned end ayah</label><div class="f"><small>Al-Baqarah</small>157</div></div><div class="inp err"><label>Insert verse</label><div class="f">2:400</div><p class="msg">Al-Baqarah has 286 ayahs.</p></div></div></div>
+  <div class="spec"><span class="eyebrow">Manage upcoming order · turns this cycle</span><div class="ord">
+   <div class="o"><svg class="ic"><use href="#i-drag"/></svg><span class="t">Ibrahim Khan<small>Week 85</small></span><span class="dots"><i class="f"></i><i></i></span></div>
+   <div class="o lift"><svg class="ic"><use href="#i-drag"/></svg><span class="t">Yusuf Rahman<small>Week 86</small></span><span class="dots"><i></i><i></i></span></div>
+   <div class="o"><svg class="ic"><use href="#i-drag"/></svg><span class="t">Omar Farooq<small>Week 87</small></span><span class="dots"><i class="f"></i><i></i></span></div>
+   <div class="o"><svg class="ic"><use href="#i-drag"/></svg><span class="t">Hamza Ali<small>Week 88</small></span><span class="dots"><i class="f"></i><i class="f"></i></span></div>
+  </div></div>
+  <div class="spec"><span class="eyebrow">Presenter banner</span><div class="ban"><svg class="ic"><use href="#i-sun"/></svg><div><b>You present next Friday</b><small>Starting at Al-Baqarah 158. Set your planned end by Wednesday night.</small><button class="btn pri sm">Set end ayah</button></div></div></div>
+  <div class="spec"><span class="eyebrow">Special week · Eid break</span><div class="eid"><p class="ar">عيد مبارك</p><h4>No class this week</h4><p>Rotation paused · next class Friday 3 April</p></div></div>
+  <div class="spec"><span class="eyebrow">Toggles · segmented</span><div class="col"><div class="group" style="background:var(--bg)"><div class="li"><span class="t">Make note public</span><span class="tog" data-tog></span></div><div class="li"><span class="t">Attendance this week</span><span class="tog on" data-tog></span></div></div><div class="segc" data-group style="display:flex"><button data-opt class="is-on" style="flex:1">Month</button><button data-opt style="flex:1">Year</button><button data-opt style="flex:1">Custom</button></div></div></div>
+  <div class="spec"><span class="eyebrow">Suggestion board</span><div><div class="sug"><button class="vote on"><svg class="ic"><use href="#i-up"/></svg>14</button><div><h5>Audio recording of each session with ayah timestamps</h5><small>Anonymous · 6 comments</small></div></div><div class="sug"><button class="vote"><svg class="ic"><use href="#i-up"/></svg>5</button><div><h5>Show tafsir page numbers next to the portion</h5><small>Yusuf Rahman · 2 comments</small></div></div></div></div>
+ </div>
+</section>
+
+<section class="block">
+ <div class="sh"><h2>Rules</h2></div>
+ <div class="dos">
+  <div><h3>Do</h3><ul><li>Use Corniche teal for things you can tap or that are selected. Nothing else is teal.</li><li>Keep the dawn tone for the next session only: the arch, and the presenter banner that leads to it.</li><li>Group related rows into inset lists. Let space separate groups, not lines.</li><li>Use the serif only at display sizes (28px+) and for the italic translation.</li><li>Prefer a sheet over a new screen for anything that takes under a minute.</li></ul></div>
+  <div class="dont"><h3>Don't</h3><ul><li>Don't put icons inside tinted rounded squares. Icons sit bare in teal.</li><li>Don't use the arch for anything except the next session (and its Eid/special-week variants).</li><li>Don't use pure white or black, even in dark mode.</li><li>Don't make points loud. They're information, so show them in terracotta at body weight.</li><li>Don't add patterns or textures to the background.</li></ul></div>
+ </div>
+</section>
+<footer>RTJ · Design system 03 · Limestone. Sample data is fictional.</footer>
+</div>
+
+<script>
+document.querySelectorAll('[data-swatches]').forEach(function(el){var m=el.dataset.swatches;el.innerHTML=Object.keys(N).map(function(k){return '<div class="sw"><span class="sw-chip" style="background:'+T[m][k]+'"></span><span class="sw-name">'+N[k][0]+'</span><span class="sw-hex">'+T[m][k]+'</span><span class="sw-role">'+N[k][1]+'</span></div>'}).join('')});
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('rtj-theme',t)}catch(e){}document.querySelectorAll('[data-set]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.set===t)})}
+document.querySelectorAll('[data-set]').forEach(function(b){b.onclick=function(){setTheme(b.dataset.set)}});setTheme(document.documentElement.dataset.theme);
+var target=Date.now()+((4*24+15)*3600+32*60+7)*1000;
+function p(n){return String(n).padStart(2,'0')}
+function tick(){var s=Math.max(0,Math.floor((target-Date.now())/1000)),d=Math.floor(s/86400);s%=86400;var h=Math.floor(s/3600);s%=3600;var m=Math.floor(s/60);s%=60;
+[['.cd-d',p(d)],['.cd-dn',d],['.cd-h',p(h)],['.cd-m',p(m)],['.cd-s',p(s)]].forEach(function(a){document.querySelectorAll(a[0]).forEach(function(e){e.textContent=a[1]})})}
+tick();setInterval(tick,1000);
+document.querySelectorAll('[data-group]').forEach(function(g){g.addEventListener('click',function(e){var b=e.target.closest('[data-opt]');if(!b)return;g.querySelectorAll('[data-opt]').forEach(function(x){x.classList.toggle('is-on',x===b)})})});
+document.querySelectorAll('[data-tog]').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
+</script>
+</body>
+</html>
